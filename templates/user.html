@@ -43,9 +43,6 @@
       border-bottom: 1px solid #ddd;
       font-size: 18px;
       font-weight: bold;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
     }
     .chat-body {
       flex: 1;
@@ -110,6 +107,7 @@
 </div>
 
 <script>
+  let ws;
   const tg = window.Telegram?.WebApp;
   const user = tg?.initDataUnsafe?.user;
   let userId = localStorage.getItem("tg_userId");
@@ -125,31 +123,36 @@
   }
 
   const chat = document.getElementById("chat");
-  const wsUrl = `ws://${location.host}/ws/user/${encodeURIComponent(userId)}`;
-  console.log("Connecting to:", wsUrl);
-  const ws = new WebSocket(wsUrl);
 
-  ws.onopen = () => console.log("✅ WebSocket открыт");
-  ws.onerror = (e) => console.error("❌ WebSocket ошибка:", e);
-  ws.onclose = () => console.warn("⚠️ WebSocket закрыт");
+  window.addEventListener("load", () => {
+    const wsUrl = `wss://${location.host}/ws/user/${encodeURIComponent(userId)}`;
+    console.log("Connecting to:", wsUrl);
+    ws = new WebSocket(wsUrl);
 
-  ws.onmessage = (e) => {
-    const div = document.createElement("div");
-    if (e.data.startsWith("👩‍💼")) {
-      div.className = "msg support";
-      div.textContent = e.data.replace("👩‍💼", "").trim();
-    } else {
-      div.className = "msg user";
-      div.textContent = e.data.replace("🧑", "").trim();
-    }
-    chat.appendChild(div);
-    chat.scrollTop = chat.scrollHeight;
-  };
+    ws.onopen = () => console.log("✅ WebSocket открыт");
+    ws.onerror = (e) => console.error("❌ WebSocket ошибка:", e);
+    ws.onclose = () => console.warn("⚠️ WebSocket закрыт");
+
+    ws.onmessage = (e) => {
+      const div = document.createElement("div");
+      if (e.data.startsWith("👩‍💼")) {
+        div.className = "msg support";
+        div.textContent = e.data.replace("👩‍💼", "").trim();
+      } else {
+        div.className = "msg user";
+        div.textContent = e.data.replace("🧑", "").trim();
+      }
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+    };
+
+    applyTgTheme();
+    tg?.onEvent("themeChanged", applyTgTheme);
+  });
 
   function send() {
     const input = document.getElementById("msgInput");
     const text = input.value.trim();
-    console.log("📤 Попытка отправки:", text);
     if (!text) return;
     if (!ws || ws.readyState !== 1) {
       alert("❗ Соединение с сервером не установлено");
@@ -166,9 +169,6 @@
       document.body.classList.remove("dark-theme");
     }
   }
-
-  tg?.onEvent("themeChanged", applyTgTheme);
-  applyTgTheme();
 </script>
 </body>
 </html>
