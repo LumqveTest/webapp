@@ -60,6 +60,7 @@
       display: flex;
       padding: 10px;
       border-top: 1px solid #ccc;
+      background: #fff;
     }
     .chat-footer input {
       flex: 1;
@@ -93,18 +94,21 @@
 <script>
   const tg = window.Telegram?.WebApp;
   const user = tg?.initDataUnsafe?.user;
+
+  if (!user || !user.id) {
+    alert("❗ Пожалуйста, откройте чат через Telegram.");
+    throw new Error("userId not found");
+  }
+
   let userId = localStorage.getItem("tg_userId");
-  if (!userId && user) {
+  if (!userId) {
     userId = `${user.username || user.first_name} (${user.id})`;
     localStorage.setItem("tg_userId", userId);
-  }
-  if (!userId) {
-    alert("❗ Открой через Telegram");
-    throw new Error("userId is undefined");
   }
 
   const chat = document.getElementById("chat");
   const ws = new WebSocket(`wss://${location.host}/ws?user=${encodeURIComponent(userId)}`);
+
   ws.onmessage = (e) => {
     const div = document.createElement("div");
     if (e.data.startsWith("👩‍💼")) {
