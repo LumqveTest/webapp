@@ -1,270 +1,161 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Панель поддержки</title>
   <style>
-    :root {
-      --bg: #f5f6fa;
-      --fg: #000;
-      --primary: #0084ff;
-      --secondary: #e4e6eb;
-      --header-bg: #ffffff;
-      --bubble-user: #e4e6eb;
-      --bubble-support: #0084ff;
-      --bubble-support-fg: #fff;
-    }
-
-    .dark-theme {
-      --bg: #18191a;
-      --fg: #e4e6eb;
-      --primary: #1d72f3;
-      --secondary: #3a3b3c;
-      --header-bg: #242526;
-      --bubble-user: #3a3b3c;
-      --bubble-support: #1d72f3;
-      --bubble-support-fg: #fff;
-    }
-
     * {
-      transition: background-color 0.4s, color 0.4s;
+      box-sizing: border-box;
     }
-
     body {
       margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: var(--bg);
-      color: var(--fg);
+      font-family: Arial, sans-serif;
+      background-color: #18191a;
+      color: #e4e6eb;
     }
-
     .container {
       display: flex;
       height: 100vh;
     }
-
-    .user-list {
-      width: 250px;
-      background: var(--header-bg);
-      border-right: 1px solid #ddd;
+    .sidebar {
+      width: 220px;
+      background-color: #242526;
       padding: 10px;
       overflow-y: auto;
+      border-right: 1px solid #3a3b3c;
     }
-
-    .user {
-      padding: 10px;
+    .sidebar .user {
+      padding: 8px 10px;
       margin-bottom: 5px;
+      background: #3a3b3c;
       border-radius: 8px;
       cursor: pointer;
-      transition: background 0.2s;
     }
-
-    .user:hover {
-      background: var(--secondary);
-    }
-
-    .user.active {
-      background: #e0eaff;
+    .sidebar .user.active {
+      background: #4b4d50;
       font-weight: bold;
     }
-
-    .chat-area {
+    .chat {
       flex: 1;
       display: flex;
       flex-direction: column;
-      background-color: var(--bg);
+      background-color: #1e1f21;
     }
-
     .chat-header {
       padding: 15px;
-      background: var(--header-bg);
-      border-bottom: 1px solid #ddd;
-      font-size: 18px;
+      background: #2a2b2d;
+      border-bottom: 1px solid #3a3b3c;
+      font-size: 16px;
       font-weight: bold;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
     }
-
     .chat-body {
       flex: 1;
-      padding: 20px;
+      padding: 15px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
       gap: 10px;
     }
-
+    .chat-footer {
+      display: flex;
+      padding: 10px;
+      border-top: 1px solid #3a3b3c;
+      background: #2a2b2d;
+    }
+    .chat-footer input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      background: #3a3b3c;
+      color: #fff;
+    }
+    .chat-footer button {
+      margin-left: 10px;
+      padding: 10px 20px;
+      background: #0084ff;
+      border: none;
+      color: #fff;
+      border-radius: 8px;
+      cursor: pointer;
+    }
     .msg {
       max-width: 70%;
       padding: 10px 15px;
       border-radius: 15px;
-      line-height: 1.4;
-    }
-
-    .msg.user {
+      background: #3a3b3c;
       align-self: flex-start;
-      background: var(--bubble-user);
-      color: var(--fg);
-      border-bottom-left-radius: 0;
     }
-
     .msg.support {
       align-self: flex-end;
-      background: var(--bubble-support);
-      color: var(--bubble-support-fg);
-      border-bottom-right-radius: 0;
-    }
-
-    .chat-footer {
-      display: flex;
-      padding: 10px;
-      background: var(--header-bg);
-      border-top: 1px solid #ddd;
-    }
-
-    .chat-footer input {
-      flex: 1;
-      padding: 10px;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-    }
-
-    .chat-footer button {
-      margin-left: 10px;
-      padding: 10px 20px;
-      font-size: 16px;
-      background: var(--primary);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    .chat-header button {
-      margin-left: 10px;
-      padding: 6px 12px;
-      font-size: 14px;
-      background: var(--primary);
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .chat-header button:hover {
-      background: #006fd6;
-    }
-
-    .theme-toggle {
-      background: none;
-      border: none;
-      font-size: 18px;
-      cursor: pointer;
-      color: var(--fg);
+      background: #0084ff;
+      color: #fff;
     }
   </style>
 </head>
 <body>
 <div class="container">
-  <div class="user-list" id="userList"></div>
-  <div class="chat-area">
-    <div class="chat-header">
-      <span id="chatHeader">Чат с: —</span>
-      <div>
-        <button onclick="deleteChat()">Удалить чат</button>
-        <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
-      </div>
-    </div>
+  <div class="sidebar" id="users"></div>
+  <div class="chat">
+    <div class="chat-header" id="chatTitle">Чат поддержки</div>
     <div class="chat-body" id="chat"></div>
     <div class="chat-footer">
-      <input id="msgInput" type="text" placeholder="Введите сообщение...">
+      <input id="msgInput" placeholder="Введите сообщение..." />
       <button onclick="send()">Отправить</button>
     </div>
   </div>
 </div>
-
 <script>
-  const adminId = "admin_" + crypto.randomUUID();
-  const ws = new WebSocket(`ws://${location.host}/ws/admin/${adminId}`);
-  const chatLog = {};
-  const userListDiv = document.getElementById("userList");
+  let selectedUser = null;
   const chat = document.getElementById("chat");
-  const chatHeader = document.getElementById("chatHeader");
-  let currentUser = null;
+  const users = document.getElementById("users");
+  const chatTitle = document.getElementById("chatTitle");
 
-  ws.onmessage = (e) => {
-    const [userId, msg] = e.data.split(":", 2);
-    if (!chatLog[userId]) {
-      chatLog[userId] = [];
-      const userDiv = document.createElement("div");
-      userDiv.className = "user";
-      userDiv.id = "user_" + userId;
-      userDiv.textContent = userId;
-      userDiv.onclick = () => selectUser(userId);
-      userListDiv.appendChild(userDiv);
+  const ws = new WebSocket(`wss://${location.host}/adminws`);
+
+  const userMessages = {};
+
+  ws.onmessage = e => {
+    const [uid, msg] = e.data.split(":", 2);
+    if (!userMessages[uid]) {
+      userMessages[uid] = [];
+      const userEl = document.createElement("div");
+      userEl.className = "user";
+      userEl.textContent = uid;
+      userEl.onclick = () => selectUser(uid, userEl);
+      users.appendChild(userEl);
     }
-    chatLog[userId].push(msg);
-    if (userId === currentUser) renderChat(userId);
+    userMessages[uid].push(msg);
+    if (selectedUser === uid) {
+      appendMsg(msg);
+    }
   };
 
-  function selectUser(userId) {
-    currentUser = userId;
-    chatHeader.textContent = "Чат с: " + userId;
-    document.querySelectorAll('.user').forEach(el => el.classList.remove('active'));
-    document.getElementById("user_" + userId).classList.add("active");
-    renderChat(userId);
+  function selectUser(uid, el) {
+    selectedUser = uid;
+    chatTitle.textContent = "Чат с: " + uid;
+    Array.from(users.children).forEach(c => c.classList.remove("active"));
+    el.classList.add("active");
+    chat.innerHTML = "";
+    (userMessages[uid] || []).forEach(appendMsg);
   }
 
-  function renderChat(userId) {
-    chat.innerHTML = "";
-    (chatLog[userId] || []).forEach(msg => {
-      const div = document.createElement("div");
-      if (msg.startsWith("👩‍💼")) {
-        div.className = "msg support";
-        div.textContent = msg.replace("👩‍💼", "").trim();
-      } else {
-        div.className = "msg user";
-        div.textContent = msg.replace("🧑", "").trim();
-      }
-      chat.appendChild(div);
-    });
+  function appendMsg(text) {
+    const div = document.createElement("div");
+    div.className = "msg";
+    if (text.startsWith("👩‍💼")) div.classList.add("support");
+    div.textContent = text.replace("🧑", "").replace("👩‍💼", "").trim();
+    chat.appendChild(div);
     chat.scrollTop = chat.scrollHeight;
   }
 
   function send() {
     const input = document.getElementById("msgInput");
-    const text = input.value.trim();
-    if (text && currentUser) {
-      ws.send(`${currentUser}:${text}`);
-      input.value = "";
-    }
+    if (!selectedUser || !input.value.trim()) return;
+    const msg = input.value.trim();
+    ws.send(`${selectedUser}:${msg}`);
+    input.value = "";
   }
-
-  function deleteChat() {
-    if (currentUser && confirm("Удалить чат с " + currentUser + "?")) {
-      ws.send("DELETE:" + currentUser);
-      chatLog[currentUser] = [];
-      const userElement = document.getElementById("user_" + currentUser);
-      if (userElement) userElement.remove();
-      chat.innerHTML = "";
-      chatHeader.textContent = "Чат с: —";
-      currentUser = null;
-    }
-  }
-
-  function toggleTheme() {
-    const isDark = document.body.classList.toggle("dark-theme");
-    localStorage.setItem("theme", isDark ? "dark" : "light");
-    document.querySelector(".theme-toggle").textContent = isDark ? "☀️" : "🌙";
-  }
-
-  window.onload = () => {
-    if (localStorage.getItem("theme") === "dark") {
-      document.body.classList.add("dark-theme");
-      document.querySelector(".theme-toggle").textContent = "☀️";
-    }
-  };
 </script>
 </body>
 </html>

@@ -16,7 +16,7 @@ async def get_user(request: Request):
 
 @app.get("/admin")
 async def get_admin(request: Request):
-    return HTMLResponse("<h1>Админ панель</h1>")
+    return HTMLResponse("<h1>Админ панель (ещё не оформлена)</h1>")
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
@@ -28,10 +28,14 @@ async def websocket_endpoint(websocket: WebSocket):
     else:
         await websocket.close()
         return
+
     clients[user_id] = websocket
     chat_history.setdefault(user_id, [])
+
+    # Отправить историю при подключении
     for msg in chat_history[user_id]:
         await websocket.send_text(msg)
+
     try:
         while True:
             data = await websocket.receive_text()
