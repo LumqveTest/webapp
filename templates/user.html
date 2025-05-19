@@ -1,174 +1,38 @@
 <!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8">
-  <title>Чат поддержки</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <style>
-    :root {
-      --bg: #f5f6fa;
-      --fg: #000;
-      --primary: #0084ff;
-      --bubble-user: #e4e6eb;
-      --bubble-support: #0084ff;
-      --bubble-support-fg: #fff;
-      --header-bg: #ffffff;
-    }
-    .dark-theme {
-      --bg: #18191a;
-      --fg: #e4e6eb;
-      --primary: #1d72f3;
-      --bubble-user: #3a3b3c;
-      --bubble-support: #1d72f3;
-      --bubble-support-fg: #fff;
-      --header-bg: #242526;
-    }
-    * {
-      transition: background-color 0.4s, color 0.4s;
-    }
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: var(--bg);
-      color: var(--fg);
-    }
-    .chat-container {
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-    }
-    .chat-header {
-      padding: 15px;
-      background: var(--header-bg);
-      border-bottom: 1px solid #ddd;
-      font-size: 18px;
-      font-weight: bold;
-    }
-    .chat-body {
-      flex: 1;
-      padding: 20px;
-      overflow-y: auto;
-      background: var(--bg);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .msg {
-      max-width: 70%;
-      padding: 10px 15px;
-      border-radius: 15px;
-      line-height: 1.4;
-    }
-    .msg.user {
-      align-self: flex-start;
-      background: var(--bubble-user);
-      color: var(--fg);
-      border-bottom-left-radius: 0;
-    }
-    .msg.support {
-      align-self: flex-end;
-      background: var(--bubble-support);
-      color: var(--bubble-support-fg);
-      border-bottom-right-radius: 0;
-    }
-    .chat-footer {
-      display: flex;
-      padding: 10px;
-      background: var(--header-bg);
-      border-top: 1px solid #ddd;
-    }
-    .chat-footer input {
-      flex: 1;
-      padding: 10px;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-    }
-    .chat-footer button {
-      margin-left: 10px;
-      padding: 10px 20px;
-      font-size: 16px;
-      background: var(--primary);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-  </style>
-</head>
+<html>
+<head><meta charset="UTF-8"><title>Чат поддержки</title></head>
 <body>
-<div class="chat-container">
-  <div class="chat-header">Чат поддержки</div>
-  <div class="chat-body" id="chat"></div>
-  <div class="chat-footer">
-    <input id="msgInput" type="text" placeholder="Введите сообщение...">
-    <button onclick="send()">Отправить</button>
-  </div>
-</div>
-
+<div id="chat" style="height:90vh; overflow:auto; border:1px solid #ccc;"></div>
+<input id="msgInput" placeholder="Сообщение..." />
+<button onclick="send()">Отправить</button>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script>
-  let ws;
-  const tg = window.Telegram?.WebApp;
-  const user = tg?.initDataUnsafe?.user;
-  let userId = localStorage.getItem("tg_userId");
-
-  if (!userId && user) {
-    userId = `${user.username || user.first_name} (${user.id})`;
-    localStorage.setItem("tg_userId", userId);
-  }
-
-  if (!userId) {
-    alert("❗ Открой чат через Telegram. userId не найден.");
-    throw new Error("Telegram user ID не определён");
-  }
-
-  const chat = document.getElementById("chat");
-
-  window.addEventListener("load", () => {
-    const wsUrl = `wss://${location.host}/ws/user/${encodeURIComponent(userId)}`;
-    console.log("Connecting to:", wsUrl);
-    ws = new WebSocket(wsUrl);
-
-    ws.onopen = () => console.log("✅ WebSocket открыт");
-    ws.onerror = (e) => console.error("❌ WebSocket ошибка:", e);
-    ws.onclose = () => console.warn("⚠️ WebSocket закрыт");
-
-    ws.onmessage = (e) => {
-      const div = document.createElement("div");
-      if (e.data.startsWith("👩‍💼")) {
-        div.className = "msg support";
-        div.textContent = e.data.replace("👩‍💼", "").trim();
-      } else {
-        div.className = "msg user";
-        div.textContent = e.data.replace("🧑", "").trim();
-      }
-      chat.appendChild(div);
-      chat.scrollTop = chat.scrollHeight;
-    };
-
-    applyTgTheme();
-    tg?.onEvent("themeChanged", applyTgTheme);
-  });
-
-  function send() {
-    const input = document.getElementById("msgInput");
-    const text = input.value.trim();
-    if (!text) return;
-    if (!ws || ws.readyState !== 1) {
-      alert("❗ Соединение с сервером не установлено");
-      return;
-    }
-    ws.send(text);
+const tg = window.Telegram?.WebApp;
+const user = tg?.initDataUnsafe?.user;
+let userId = localStorage.getItem("tg_userId");
+if (!userId && user) {
+  userId = `${user.username || user.first_name} (${user.id})`;
+  localStorage.setItem("tg_userId", userId);
+}
+if (!userId) {
+  alert("Открой через Telegram.");
+  throw new Error("userId not found");
+}
+const chat = document.getElementById("chat");
+const ws = new WebSocket(`wss://${location.host}/ws?user=${encodeURIComponent(userId)}`);
+ws.onmessage = e => {
+  const div = document.createElement("div");
+  div.textContent = e.data;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+};
+function send() {
+  const input = document.getElementById("msgInput");
+  if (input.value.trim()) {
+    ws.send(input.value.trim());
     input.value = "";
   }
-
-  function applyTgTheme() {
-    if (tg?.colorScheme === "dark") {
-      document.body.classList.add("dark-theme");
-    } else {
-      document.body.classList.remove("dark-theme");
-    }
-  }
+}
 </script>
 </body>
 </html>
