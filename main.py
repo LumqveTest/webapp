@@ -193,7 +193,7 @@ async def ws_admin(ws: WebSocket):
                                 "chat_id":
                                 int(chat_id),
                                 "text":
-                                "Саппорт закрыл ваш чат.\nПропишите /start чтобы открыть новый."
+                                "Саппорт закрыл ваш чат.\nОткрой новый чат чтобы задать снова вопрос!"
                             })
                     except Exception as e:
                         print("Telegram notify error:", e)
@@ -225,7 +225,7 @@ async def ws_admin(ws: WebSocket):
                         "chat_id":
                         int(chat_id),
                         "text":
-                        "Саппорт ответил вам в чате.\nПропишите /start чтобы посмотреть ответ."
+                        "Саппорт ответил вам в чате.\nОткройте чат, чтобы посмотреть ответ!"
                     })
             except Exception as e:
                 print("Telegram notify error:", e)
