@@ -1,4 +1,8 @@
 fastapi
 uvicorn
 jinja2
+requests
+starlette
+itsdangerous
+python-multipart
 uvicorn[standard]
