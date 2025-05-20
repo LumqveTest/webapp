@@ -15,7 +15,7 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 import secrets
 
 # === Конфигурация ===
-BOT_TOKEN = "6779900408:AAHh1ilxwtCMDP4SRcFuQginZAx_6kXDbF0"
+BOT_TOKEN = "7876588623:AAE4NvelTssLzaXKR_mxXROIj0Ow-iIg9j0"
 ADMIN_USERNAME = "admin"
 ADMIN_PASSWORD = "1234"
 
@@ -131,7 +131,7 @@ async def ws_user(ws: WebSocket):
                         requests.post(
                             f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
                             json={
-                                "chat_id": 6657432202,  # или другой ID
+                                "chat_id": -1002608973505,  # или другой ID
                                 "text": f"🆕 Новый чат от пользователя:\n{user_id}"
                             }
                         )
