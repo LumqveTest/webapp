@@ -6,3 +6,4 @@ starlette
 itsdangerous
 python-multipart
 uvicorn[standard]
+requests
