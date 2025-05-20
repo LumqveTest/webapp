@@ -2,160 +2,339 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <title>Панель поддержки</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Админ-панель поддержки</title>
   <style>
     * {
       box-sizing: border-box;
-    }
-    body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #18191a;
+      padding: 0;
+    }
+
+    body, html {
+      height: 100%;
+      font-family: -apple-system, sans-serif;
+      background: #18191a;
       color: #e4e6eb;
-    }
-    .container {
       display: flex;
-      height: 100vh;
+      flex-direction: column;
     }
+
+    .container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    @media (min-width: 768px) {
+      .container {
+        flex-direction: row;
+      }
+
+      .sidebar {
+        height: 100%;
+      }
+    }
+
     .sidebar {
-      width: 220px;
-      background-color: #242526;
-      padding: 10px;
+      width: 100%;
+      max-height: 200px;
+      background: #242526;
+      border-bottom: 1px solid #3a3b3c;
       overflow-y: auto;
-      border-right: 1px solid #3a3b3c;
     }
-    .sidebar .user {
-      padding: 8px 10px;
-      margin-bottom: 5px;
+
+    @media (min-width: 768px) {
+      .sidebar {
+        width: 240px;
+        border-right: 1px solid #3a3b3c;
+        border-bottom: none;
+        max-height: none;
+      }
+    }
+
+    .user-item {
+      padding: 12px 16px;
+      cursor: pointer;
+      border-bottom: 1px solid #3a3b3c;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .user-item:hover {
       background: #3a3b3c;
-      border-radius: 8px;
+    }
+
+    .user-item.active {
+      background: #4b4d50;
+    }
+
+    .user-item .btn-clear {
+      background: transparent;
+      border: none;
+      color: #e4e6eb;
+      font-size: 14px;
       cursor: pointer;
     }
-    .sidebar .user.active {
-      background: #4b4d50;
-      font-weight: bold;
-    }
+
     .chat {
       flex: 1;
       display: flex;
       flex-direction: column;
-      background-color: #1e1f21;
+      height: 100%;
     }
+
     .chat-header {
-      padding: 15px;
+      padding: 12px 16px;
       background: #2a2b2d;
       border-bottom: 1px solid #3a3b3c;
-      font-size: 16px;
-      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
+
+    .chat-header .title {
+      font-size: 16px;
+    }
+
+    .chat-header .btn-delete {
+      background: #ff4d4d;
+      border: none;
+      color: white;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
     .chat-body {
       flex: 1;
-      padding: 15px;
+      padding: 16px;
+      background: #18191a;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
     }
+
+    .msg {
+      max-width: 80%;
+      padding: 10px 14px;
+      border-radius: 14px;
+      font-size: 15px;
+      word-break: break-word;
+    }
+
+    .msg.user {
+      background: #3a3b3c;
+      color: #e4e6eb;
+      align-self: flex-start;
+      border-bottom-left-radius: 0;
+    }
+
+    .msg.support {
+      background: #0084ff;
+      color: #ffffff;
+      align-self: flex-end;
+      border-bottom-right-radius: 0;
+    }
+
     .chat-footer {
-      display: flex;
-      padding: 10px;
-      border-top: 1px solid #3a3b3c;
+      padding: 12px 16px;
       background: #2a2b2d;
+      border-top: 1px solid #3a3b3c;
+      display: flex;
+      gap: 8px;
     }
+
     .chat-footer input {
       flex: 1;
-      padding: 10px;
+      padding: 10px 14px;
+      font-size: 15px;
+      border: none;
       border-radius: 8px;
-      border: none;
       background: #3a3b3c;
-      color: #fff;
+      color: #ffffff;
     }
+
     .chat-footer button {
-      margin-left: 10px;
-      padding: 10px 20px;
+      padding: 10px 16px;
+      font-size: 15px;
       background: #0084ff;
-      border: none;
       color: #fff;
+      border: none;
       border-radius: 8px;
       cursor: pointer;
     }
-    .msg {
-      max-width: 70%;
-      padding: 10px 15px;
-      border-radius: 15px;
-      background: #3a3b3c;
-      align-self: flex-start;
-    }
-    .msg.support {
-      align-self: flex-end;
-      background: #0084ff;
-      color: #fff;
-    }
   </style>
 </head>
+
 <body>
-<div class="container">
-  <div class="sidebar" id="users"></div>
-  <div class="chat">
-    <div class="chat-header" id="chatTitle">Чат поддержки</div>
-    <div class="chat-body" id="chat"></div>
-    <div class="chat-footer">
-      <input id="msgInput" placeholder="Введите сообщение..." />
-      <button onclick="send()">Отправить</button>
+  <div class="container">
+    <div class="sidebar" id="users"></div>
+
+    <div class="chat">
+      <div class="chat-header">
+        <div class="title" id="chatTitle">Выберите пользователя</div>
+        <button class="btn-delete" id="deleteChatBtn" disabled>Удалить чат</button>
+      </div>
+      <div class="chat-body" id="chat"></div>
+      <div class="chat-footer">
+        <input id="msgInput" placeholder="Введите сообщение..." disabled />
+        <button id="sendBtn" disabled>Отправить</button>
+      </div>
     </div>
   </div>
-</div>
-<script>
-  let selectedUser = null;
-  const chat = document.getElementById("chat");
-  const users = document.getElementById("users");
-  const chatTitle = document.getElementById("chatTitle");
 
-  const ws = new WebSocket(`wss://${location.host}/adminws`);
+  <script>
+    const ws = new WebSocket(`wss://${location.host}/adminws`);
+    const usersEl = document.getElementById('users');
+    const chatEl = document.getElementById('chat');
+    const titleEl = document.getElementById('chatTitle');
+    const inputEl = document.getElementById('msgInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const delBtn = document.getElementById('deleteChatBtn');
 
-  const userMessages = {};
+    let selectedUser = null;
+    const historyMap = {};
 
-  ws.onmessage = e => {
-    const [uid, msg] = e.data.split(":", 2);
-    if (!userMessages[uid]) {
-      userMessages[uid] = [];
-      const userEl = document.createElement("div");
-      userEl.className = "user";
-      userEl.textContent = uid;
-      userEl.onclick = () => selectUser(uid, userEl);
-      users.appendChild(userEl);
+    ws.onmessage = e => {
+      const data = e.data;
+      if (data.startsWith('CLEAR_CHAT:')) {
+        const uid = data.split(':')[1];
+        delete historyMap[uid];
+        const item = usersEl.querySelector(`[data-uid="${uid}"]`);
+        if (item) item.remove();
+        if (selectedUser === uid) {
+          selectedUser = null;
+          titleEl.textContent = 'Выберите пользователя';
+          chatEl.innerHTML = '';
+          inputEl.disabled = sendBtn.disabled = delBtn.disabled = true;
+        }
+        return;
+      }
+
+      const [role, uid, ...rest] = data.split(':');
+      const text = rest.join(':').trim();
+
+      if (!historyMap[uid]) {
+        historyMap[uid] = { messages: [], unread: 0 };
+        addUserToList(uid);
+      }
+
+      historyMap[uid].messages.push({ sender: role, text });
+
+      if (uid === selectedUser) {
+        appendMsg(role, text);
+      } else if (role === 'user') {
+        historyMap[uid].unread++;
+        updateUnreadBadge(uid);
+      }
+    };
+
+    function addUserToList(uid) {
+      const div = document.createElement('div');
+      div.className = 'user-item';
+      div.dataset.uid = uid;
+
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'user-name';
+      nameSpan.textContent = uid;
+
+      const right = document.createElement('div');
+      right.style.display = 'flex';
+      right.style.alignItems = 'center';
+      right.style.gap = '8px';
+
+      const badge = document.createElement('span');
+      badge.className = `unread-badge badge-${CSS.escape(uid)}`;
+      badge.style.cssText = `
+        background: red;
+        color: white;
+        border-radius: 50%;
+        padding: 2px 6px;
+        font-size: 12px;
+        display: none;
+      `;
+
+      const btn = document.createElement('button');
+      btn.className = 'btn-clear';
+      btn.textContent = '✖';
+      btn.onclick = e => {
+        e.stopPropagation();
+        clearChat(uid);
+      };
+
+      right.appendChild(badge);
+      right.appendChild(btn);
+
+      div.appendChild(nameSpan);
+      div.appendChild(right);
+
+      div.onclick = () => selectUser(uid, div);
+      usersEl.appendChild(div);
     }
-    userMessages[uid].push(msg);
-    if (selectedUser === uid) {
-      appendMsg(msg);
+
+    function updateUnreadBadge(uid) {
+      const badge = document.querySelector(`.badge-${CSS.escape(uid)}`);
+      if (!badge) return;
+      const count = historyMap[uid]?.unread || 0;
+      badge.style.display = count > 0 ? 'inline-block' : 'none';
+      badge.textContent = count;
     }
-  };
 
-  function selectUser(uid, el) {
-    selectedUser = uid;
-    chatTitle.textContent = "Чат с: " + uid;
-    Array.from(users.children).forEach(c => c.classList.remove("active"));
-    el.classList.add("active");
-    chat.innerHTML = "";
-    (userMessages[uid] || []).forEach(appendMsg);
-  }
+    function selectUser(uid, el) {
+      selectedUser = uid;
+      usersEl.querySelectorAll('.user-item').forEach(i => i.classList.remove('active'));
+      el.classList.add('active');
+      titleEl.textContent = `Чат с: ${uid}`;
+      inputEl.disabled = sendBtn.disabled = delBtn.disabled = false;
+      chatEl.innerHTML = '';
 
-  function appendMsg(text) {
-    const div = document.createElement("div");
-    div.className = "msg";
-    if (text.startsWith("👩‍💼")) div.classList.add("support");
-    div.textContent = text.replace("🧑", "").replace("👩‍💼", "").trim();
-    chat.appendChild(div);
-    chat.scrollTop = chat.scrollHeight;
-  }
+      const chat = historyMap[uid];
+      if (!chat) return;
 
-  function send() {
-    const input = document.getElementById("msgInput");
-    if (!selectedUser || !input.value.trim()) return;
-    const msg = input.value.trim();
-    ws.send(`${selectedUser}:${msg}`);
-    input.value = "";
-  }
-</script>
+      chat.messages.forEach(({ sender, text }) => appendMsg(sender, text));
+      chat.unread = 0;
+      updateUnreadBadge(uid);
+      chatEl.scrollTop = chatEl.scrollHeight;
+    }
+
+    function appendMsg(role, text) {
+      const div = document.createElement('div');
+      div.className = 'msg ' + (role === 'user' ? 'user' : 'support');
+      div.textContent = text;
+      chatEl.appendChild(div);
+      chatEl.scrollTop = chatEl.scrollHeight;
+    }
+
+    sendBtn.onclick = () => {
+      if (!selectedUser) return;
+      const text = inputEl.value.trim();
+      if (!text) return;
+      ws.send(`support:${selectedUser}:${text}`);
+      inputEl.value = '';
+    };
+
+    delBtn.onclick = () => {
+      if (!selectedUser) return;
+      clearChat(selectedUser);
+    };
+
+    function clearChat(uid) {
+      ws.send(`DELETE_CHAT:${uid}`);
+    }
+
+    ws.onclose = () => {
+      inputEl.disabled = sendBtn.disabled = delBtn.disabled = true;
+    };
+
+    inputEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        sendBtn.click();
+      }
+    });
+  </script>
 </body>
 </html>
