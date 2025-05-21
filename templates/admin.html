@@ -10,7 +10,6 @@
       margin: 0;
       padding: 0;
     }
-
     body, html {
       height: 100%;
       font-family: -apple-system, sans-serif;
@@ -19,23 +18,11 @@
       display: flex;
       flex-direction: column;
     }
-
-    .container {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-
+    .container { flex: 1; display: flex; flex-direction: column; }
     @media (min-width: 768px) {
-      .container {
-        flex-direction: row;
-      }
-
-      .sidebar {
-        height: 100%;
-      }
+      .container { flex-direction: row; }
+      .sidebar { height: 100%; }
     }
-
     .sidebar {
       width: 100%;
       max-height: 200px;
@@ -43,7 +30,6 @@
       border-bottom: 1px solid #3a3b3c;
       overflow-y: auto;
     }
-
     @media (min-width: 768px) {
       .sidebar {
         width: 240px;
@@ -52,7 +38,6 @@
         max-height: none;
       }
     }
-
     .user-item {
       padding: 12px 16px;
       cursor: pointer;
@@ -61,15 +46,8 @@
       justify-content: space-between;
       align-items: center;
     }
-
-    .user-item:hover {
-      background: #3a3b3c;
-    }
-
-    .user-item.active {
-      background: #4b4d50;
-    }
-
+    .user-item:hover { background: #3a3b3c; }
+    .user-item.active { background: #4b4d50; }
     .user-item .btn-clear {
       background: transparent;
       border: none;
@@ -77,14 +55,12 @@
       font-size: 14px;
       cursor: pointer;
     }
-
     .chat {
       flex: 1;
       display: flex;
       flex-direction: column;
       height: 100%;
     }
-
     .chat-header {
       padding: 12px 16px;
       background: #2a2b2d;
@@ -93,11 +69,7 @@
       justify-content: space-between;
       align-items: center;
     }
-
-    .chat-header .title {
-      font-size: 16px;
-    }
-
+    .chat-header .title { font-size: 16px; }
     .chat-header .btn-delete {
       background: #ff4d4d;
       border: none;
@@ -106,17 +78,16 @@
       border-radius: 6px;
       cursor: pointer;
     }
-
     .chat-body {
       flex: 1;
       padding: 16px;
       background: #18191a;
       overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
       display: flex;
       flex-direction: column;
       gap: 12px;
     }
-
     .msg {
       max-width: 80%;
       padding: 10px 14px;
@@ -124,21 +95,18 @@
       font-size: 15px;
       word-break: break-word;
     }
-
     .msg.user {
       background: #3a3b3c;
       color: #e4e6eb;
       align-self: flex-start;
       border-bottom-left-radius: 0;
     }
-
     .msg.support {
       background: #0084ff;
       color: #ffffff;
       align-self: flex-end;
       border-bottom-right-radius: 0;
     }
-
     .chat-footer {
       padding: 12px 16px;
       background: #2a2b2d;
@@ -146,7 +114,6 @@
       display: flex;
       gap: 8px;
     }
-
     .chat-footer input {
       flex: 1;
       padding: 10px 14px;
@@ -156,7 +123,6 @@
       background: #3a3b3c;
       color: #ffffff;
     }
-
     .chat-footer button {
       padding: 10px 16px;
       font-size: 15px;
@@ -172,7 +138,6 @@
 <body>
   <div class="container">
     <div class="sidebar" id="users"></div>
-
     <div class="chat">
       <div class="chat-header">
         <div class="title" id="chatTitle">Выберите пользователя</div>
@@ -180,13 +145,24 @@
       </div>
       <div class="chat-body" id="chat"></div>
       <div class="chat-footer">
-        <input id="msgInput" placeholder="Введите сообщение..." disabled />
+        <input id="msgInput" placeholder="Введите сообщение." disabled />
         <button id="sendBtn" disabled>Отправить</button>
       </div>
     </div>
   </div>
 
   <script>
+    // Полифилл для CSS.escape (для старых версий Mobile Safari)
+    if (typeof CSS === 'undefined' || typeof CSS.escape !== 'function') {
+      (function(global){
+        var regex = /([ !"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~])/g;
+        if (!global.CSS) global.CSS = {};
+        global.CSS.escape = function(str) {
+          return String(str).replace(regex, '\\$1');
+        };
+      })(window);
+    }
+
     const ws = new WebSocket(`wss://${location.host}/adminws`);
     const usersEl = document.getElementById('users');
     const chatEl = document.getElementById('chat');
@@ -267,10 +243,8 @@
 
       right.appendChild(badge);
       right.appendChild(btn);
-
       div.appendChild(nameSpan);
       div.appendChild(right);
-
       div.onclick = () => selectUser(uid, div);
       usersEl.appendChild(div);
     }
@@ -292,8 +266,6 @@
       chatEl.innerHTML = '';
 
       const chat = historyMap[uid];
-      if (!chat) return;
-
       chat.messages.forEach(({ sender, text }) => appendMsg(sender, text));
       chat.unread = 0;
       updateUnreadBadge(uid);
@@ -329,7 +301,7 @@
       inputEl.disabled = sendBtn.disabled = delBtn.disabled = true;
     };
 
-    inputEl.addEventListener('keydown', (e) => {
+    inputEl.addEventListener('keydown', e => {
       if (e.key === 'Enter') {
         e.preventDefault();
         sendBtn.click();
